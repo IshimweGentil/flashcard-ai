@@ -1,10 +1,11 @@
 'use client'
 import { useUser } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
-import { writeBatch, doc, collection, getDoc } from 'firebase/firestore' 
+import { useState } from 'react' 
 import { Box, Typography, Container, AppBar, Toolbar, Button, Paper, TextField, Grid, CardActionArea, DialogTitle, DialogContent, DialogActions, Dialog, DialogContentText, Card, CardContent } from '@mui/material'
-import {Link} from 'next/link'
+import Link from 'next/link'
+import {db} from '@/firebase'
+import { doc,getDoc, collection, setDoc, writeBatch } from 'firebase/firestore'
 
 const backgroundColor = "#101010";
 const cardColor = "#1a1a1a";
@@ -27,7 +28,7 @@ export default function Generate() {
         }) 
         .then((res) => res.json())
         .then((data) => setFlashcards(data))
-}       
+} 
     const handleCardClick = (id) =>{
         setFlipped((prev) => ({
             ...prev,
@@ -45,6 +46,9 @@ export default function Generate() {
             alert('Please enter a name')
             return
         }
+
+        // Will get an error when you try to save w/o signing in
+
         const batch = writeBatch(db)
         const userDocRef = doc(collection(db,'users'),user.id)
         const docSnap = await getDoc(userDocRef)
@@ -85,7 +89,7 @@ export default function Generate() {
             <Toolbar>
                 <Typography variant="h6" sx={{flexGrow:1}}>Smart Flashcards</Typography>
                 <Button color="inherit">
-                    <Link href="/login" passHref color='inherit'>Log In</Link> 
+                    <Link href="/login" passHref color='inherit' >Log In</Link> 
                 </Button>
                 <Button color="inherit">
                     <Link href="/signup" passHref color='inherit'>Sign Up</Link> 
@@ -94,7 +98,7 @@ export default function Generate() {
         </AppBar>
 
 
-    <Container maxWidht="md">
+    <Container maxWidth="md">
         <Box sx={{
             mt:4,
             mb:6,
@@ -151,15 +155,15 @@ export default function Generate() {
         
         {flashcards.length > 0 && (
             <Box sx={{mt:4}}>
-                <Typography variant="h5" sx={{color: textColor}}>Flashcard Preview</Typography>
+                <Typography variant="h4" sx={{color: textColor, textAlign:"center"}} gutterBottom>Flashcard Preview</Typography>
                 <Grid container spacing = {3}>
                     {flashcards.map((flashcard, index) => (
                         <Grid item xs={12} sm={6} md={4} key = {index}>
-                            <Card>
+                            <Card sx={{backgroundColor:cardColor,border:'1px solid', borderColor:borderColor}}>
                                 <CardActionArea onClick={() => {
                                     handleCardClick(index)
                                 }}>
-                                    <CardContent>
+                                    <CardContent sx={{borderRadius:'8px'}}>
                                         <Box
                                         sx={{
                                             perspective:'1000px',
@@ -169,7 +173,6 @@ export default function Generate() {
                                                 position: 'relative',
                                                 width: '100%',
                                                 height: '200px',
-                                                boxShadow: '0 4px 8px 0 rgba(0,0,0,0.2)',
                                                 transform: flipped[index] ? 'rotateY(180deg)' : 'rotateY(0deg)',
                                             },
                                             '& > div > div': {
@@ -184,7 +187,7 @@ export default function Generate() {
                                                 boxSizing: 'border-box',
                                             },
                                             '& > div > div:nth-of-type(2)': {
-                                            transition: 'transform 0.6s',
+                                            
                                                 transform: 'rotateY(180deg)',
                                             },
                                         }}>
@@ -194,11 +197,12 @@ export default function Generate() {
                                                         {flashcard.front}
                                                         </Typography>
                                                     </div>
-                                                </div>
+                                                
                                                 <div>
                                                     <Typography variant="h5" component ="div"sx={{color: textColor}}>
                                                         {flashcard.back}
                                                         </Typography>
+                                                </div>
                                                 </div>
                                             </Box>
                                     </CardContent>

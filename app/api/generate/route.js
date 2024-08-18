@@ -37,8 +37,8 @@ Return in the following JSON format
         }]
 }`;
 
-export default async function POST(req) {  // defines the function to handle http POST requests
-    const openai = new OpenAI(); // creates an instance of the OpenAI API client
+export  async function POST(req) {  // defines the function to handle http POST requests
+    const openai = new OpenAI({apiKey:process.env.OPENAI_API_KEY}); // creates an instance of the OpenAI API client
     const data = await req.text() // reads the request body as text, await keyword ensures the data is fully read before proceeding
     
     const completion = await openai.chat.completions.create({ // generates completion using the OpenAI API
@@ -49,8 +49,8 @@ export default async function POST(req) {  // defines the function to handle htt
         model: 'gpt-4o',
         response_format:{type: 'json_object'}
     })
-    console.log(completion.choices[0].message.content) // logs the response content to the console
 
-    const flashcards = JSON.parse(completion.choices[0].message.content)  //interprets and and converts to actual data
-    return NextResponse.json(flashcards.flashcards)   // returns the flashcards in JSON format
+    const flashcards = JSON.parse(completion.choices[0].message.content)  
+    return NextResponse.json(flashcards.flashcards)   
+    // added .json
     }
