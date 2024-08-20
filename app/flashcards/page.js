@@ -32,7 +32,7 @@ export default function Flashcards() {
             return <></>
         }
         const handleCardClick = (id) => {
-            router.push(`/flashcards/${id}`)
+            router.push(`/flashcard?id=${id}`)
         }
 
         return (
